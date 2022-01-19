@@ -386,7 +386,3 @@ def real_time(index):
     now_list = [now.tm_hour, now.tm_min, now.tm_sec]
     return now_list[index]
 
-
-
-a = Coinness.crawl()
-print(a)
