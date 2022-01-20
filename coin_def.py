@@ -1,5 +1,6 @@
 # from ast import Index
 import re
+from typing import final
 # from numpy.lib.shape_base import column_stack
 # import ccxt
 import requests
@@ -192,37 +193,197 @@ class Upbit:
             for i, j in zip(title_list, title_link):
                 total_list.append(i + j)
             return " ".join(total_list)
-    def deposit_possible():
-        url = "https://ccx.upbit.com/api/v1/status/wallet"
-        result = req.urlopen(url)
-        js_obj = json.load(result)
-        coin_name = []
-        wallet_state = []
-        block_state = []
-        block_height = []
-        message = []
 
-        for i in js_obj:
-            coin_name.append("코인명 : " + i["currency"])
-            if i["wallet_state"] == "working":
-                wallet_state.append("입출금현황 : 입출금 가능")
-            elif i["wallet_state"] == "withdraw_only":
-                wallet_state.append("입출금현황 : 출금만 가능")
-            elif i["wallet_state"] == "paused":
-                wallet_state.append("입출금현황 : 일시중단")
-            elif i["wallet_state"] == "unsupported":
-                wallet_state.append("입출금현황 : 준비중")
-            else:
-                wallet_state.append("입출금현황 : 중단")
-            block_state.append("블록상태 : " + i["block_state"])
-            block_height.append("블록높이 : " + str(i["block_height"]))
-            message.append("비고 : " + str(i["message"]))
-        
-        final_result = []
-        for i in zip(coin_name, wallet_state, block_state, block_height, message):
-            print(i)    
-        
-        
+# 업비트 코인동향(가격상승,하락)
+class Upbit_Trand:
+    def __init__(self):
+        #입출금현황 리스트 초기화
+        self.coin_name = []
+        self.wallet_state = []
+        self.block_state = []
+        self.block_height = []
+        self.message = []
+        #매수/매도 체결순위 리스트 초기화
+        self.rank_list = []
+        self.coin_list = []
+        self.change_price_list = []
+        self.change_rate_list = []
+        self.trand_url = "https://crix-api-cdn.upbit.com/v1/crix/trends/daily_volume_power?quoteCurrencyCode="
+    def trand_list(self, index):
+        # 입출금 현황
+        if index == 1:
+            url = "https://ccx.upbit.com/api/v1/status/wallet"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            
+            for i in js_obj:
+                self.coin_name.append("[코인명] : " + i["currency"])
+                if i["wallet_state"] == "working":
+                    self.wallet_state.append(" [입출금현황] : 입출금 가능 ")
+                elif i["wallet_state"] == "withdraw_only":
+                    self.wallet_state.append(" [입출금현황] : 출금만 가능 ")
+                elif i["wallet_state"] == "paused":
+                    self.wallet_state.append(" [입출금현황] : 일시중단 ")
+                elif i["wallet_state"] == "unsupported":
+                    self.wallet_state.append(" [입출금현황] : 준비중 ")
+                else:
+                    self.wallet_state.append(" [입출금현황] : 중단 ")
+                self.block_state.append(" [블록상태] : " + i["block_state"])
+                self.block_height.append(" [블록높이] : " + str(i["block_height"]))
+                self.message.append(" [비고] : " + str(i["message"]))
+            # print(self.trand_url.format("bid"))
+            final_result = []
+            for i in zip(self.coin_name, self.wallet_state, self.block_state, self.block_height, self.message):
+                final_result.append(i[0] + i[1] + i[2] + i[3] + i[4] + "\n")
+            return " ".join(final_result)
+
+        #일 매수 체결순위(KRW마켓) 
+        elif index == 2:
+            url = self.trand_url + "KRW&orderBy=bid&count=5"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["markets"]
+            for i in data:
+                self.rank_list.append(str(i["rank"]))
+                self.coin_list.append(i["localName"] + "(" + i["pair"] + ")")
+                if i["signedChangePrice"] > 0:
+                    self.change_price_list.append(str(i["signedChangePrice"]) + " 🔼 ")
+                elif i["signedChangePrice"] < 0:
+                    self.change_price_list.append(str(i["signedChangePRice"]) + " 🔽 ")
+                else:
+                    self.change_price_list.append(str(i["signedChangePrice"]) + " ➖ ")
+                self.change_rate_list.append(str(format(i["signedChangeRate"]*100, ".2f")) + "%")
+            final_result = ["[업비트] 일 매수 체결순위(KRW 마켓)"]
+            for i in zip(self.rank_list, self.coin_list, self.change_price_list, self.change_rate_list):
+                final_result.append("\n" + i[0] + ". " + i[1] + " " + i[2] + " " + i[3])
+            #다시 초기화
+            self.rank_list = []
+            self.coin_list = []
+            self.change_price_list = []
+            self.change_rate_list = []
+            return " ".join(final_result)
+
+        #일 매도 체결순위(KRW마켓)
+        elif index == 3:
+            url = self.trand_url + "KRW&orderBy=ask&count=5"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["markets"]
+            for i in data:
+                self.rank_list.append(str(i["rank"]))
+                self.coin_list.append(i["localName"] + "(" + i["pair"] + ")")
+                if i["signedChangePrice"] > 0:
+                    self.change_price_list.append(str(i["signedChangePrice"]) + " 🔼 ")
+                elif i["signedChangePrice"] < 0:
+                    self.change_price_list.append(str(i["signedChangePrice"]) + " 🔽 ")
+                else:
+                    self.change_price_list.append(str(i["signedChangePrice"]) + " ➖ ")
+                self.change_rate_list.append(str(format(i["signedChangeRate"]*100, ".2f")) + "%")
+            final_result = ["[업비트] 일 매도 체결순위(KRW 마켓)"]
+            for i in zip(self.rank_list, self.coin_list, self.change_price_list, self.change_rate_list):
+                final_result.append("\n" + i[0] + ". " + i[1] + " " + i[2] + " " + i[3])
+            self.rank_list = []
+            self.coin_list = []
+            self.change_price_list = []
+            self.change_rate_list = []
+            return " ".join(final_result)
+            
+        #일 매수 체결순위(BTC 마켓)
+        elif index == 4:
+            url = self.trand_url + "BTC&orderBy=bid&count=5"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["markets"]
+            for i in data:
+                self.rank_list.append(str(i["rank"]))
+                self.coin_list.append(i["localName"] + "(" + i["pair"] + ")")
+                if i["signedChangePrice"] > 0:
+                    self.change_price_list.append(str(format(i["signedChangePrice"], ".8f")) + " 🔼 ")
+                elif i["signedChangePrice"] < 0:
+                    self.change_price_list.append(str(format(i["signedChangePrice"], ".8f")) + " 🔽 ")
+                else:
+                    self.change_price_list.append(str(format(i["signedChangePrice"], ".8f")) + " ➖ ")
+                self.change_rate_list.append(str(format(i["signedChangeRate"]*100, ".2f")) + "%")
+            #리스트 종합
+            final_result = ["[업비트] 일 매수 체결순위(BTC마켓)"]
+            for i in zip(self.rank_list, self.coin_list, self.change_price_list, self.change_rate_list):
+                final_result.append("\n" + i[0] + ". " + i[1] + " " + i[2] + " " + i[3])
+            #다시 초기화
+            self.rank_list = []
+            self.coin_list = []
+            self.change_price_list = []
+            self.change_rate_list = []
+            return " ".join(final_result)
+
+        #일 매도 체결순위(BTC 마켓)
+        elif index == 5:
+            url = self.trand_url + "BTC&orderBy=ask&count=5"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["markets"]
+            for i in data:
+                self.rank_list.append(str(i["rank"]))
+                self.coin_list.append(i["localName"] + "(" + i["pair"] + ")")
+                if i["signedChangePrice"] > 0:
+                    self.change_price_list.append(str(format(i["signedChangePrice"], ".8f")) + " 🔼 ")
+                elif i["signedChangePrice"] < 0:
+                    self.change_price_list.append(str(format(i["signedChangePrice"], ".8f")) + " 🔽 ")
+                else:
+                    self.change_price_list.append(str(format(i["signedChangePrice"], ".8f")) + " ➖ ")
+                self.change_rate_list.append(str(format(i["signedChangeRate"]*100, ".2f")) + "%")
+            #리스트 종합
+            final_result = ["[업비트] 일 매도 체결순위(BTC마켓)"]
+            for i in zip(self.rank_list, self.coin_list, self.change_price_list, self.change_rate_list):
+                final_result.append("\n" + i[0] + ". " + i[1] + " " + i[2] + " " + i[3])
+            #다시 초기화
+            self.rank_list = []
+            self.coin_list = []
+            self.change_price_list = []
+            self.change_rate_list = []
+            return " ".join(final_result)
+        #주간 상승률 Top 10
+        elif index == 6:
+            url = "https://crix-api-cdn.upbit.com/v1/crix/trends/weekly_change_rate?count=10"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["markets"]
+            for i in data:
+                self.rank_list.append(str(i["rank"]))
+                self.coin_list.append(i["localName"] + "(" + i["pair"] + ")")
+                self.change_rate_list.append("+" + str(format(i["signedChangeRate"]*100, ".2f")) + "%")
+            final_result = ["[업비트] 주간 상승률 Top 10"]
+            for i in zip(self.rank_list, self.coin_list, self.change_rate_list):
+                final_result.append("\n" + i[0] + ". " + i[1] + " " + i[2])
+            #다시 초기화
+            self.rank_list = []
+            self.coin_list = []
+            self.change_price_list = []
+            self.change_rate_list = []
+            return " ".join(final_result)
+    
+class Upbit_News:
+    def __init__(self):
+        self.title_list = []
+        self.content_list = []
+        self.created_list = []
+        self.url_list = []
+        self.news_url = "https://api-manager.upbit.com/api/v1/coin_news"
+    def get_news(self, index):
+        if index == 1:
+            url = self.news_url + "?category=general"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["data"]["list"]
+            content_list = []
+            for i in data:
+                self.title_list.append(i["title"])
+                content_list = i["content"]
+                content_list = re.sub("[\n\xa0]", "", content_list)
+                self.content_list.append(content_list)
+                self.created_list.append(i["created_at"])
+                self.url_list.append(i["url"])
+            
+            print(self.content_list)
 
 class Bithumb:          
     def get_krw_coin_price(coin_name):
@@ -386,3 +547,7 @@ def real_time(index):
     now_list = [now.tm_hour, now.tm_min, now.tm_sec]
     return now_list[index]
 
+
+
+a = Upbit_News()
+print(a.get_news(1))
