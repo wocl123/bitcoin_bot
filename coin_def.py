@@ -364,26 +364,92 @@ class Upbit_Trand:
 class Upbit_News:
     def __init__(self):
         self.title_list = []
-        self.content_list = []
         self.created_list = []
         self.url_list = []
         self.news_url = "https://api-manager.upbit.com/api/v1/coin_news"
     def get_news(self, index):
+        # 일반 뉴스 최근 10개
         if index == 1:
             url = self.news_url + "?category=general"
             result = req.urlopen(url)
             js_obj = json.load(result)
-            data = js_obj["data"]["list"]
-            content_list = []
+            data = js_obj["data"]["featured_list"]
+            count = 1
             for i in data:
-                self.title_list.append(i["title"])
-                content_list = i["content"]
-                content_list = re.sub("[\n\xa0]", "", content_list)
-                self.content_list.append(content_list)
-                self.created_list.append(i["created_at"])
-                self.url_list.append(i["url"])
+                self.title_list.append("{}. 제목 : ".format(count) +i["title"])
+                self.created_list.append("업로드 시간 : " + i["created_at"][:19])
+                self.url_list.append("url : " + i["url"])
+                count += 1
             
-            print(self.content_list)
+            final_result = ["[업비트] 디지털 자산뉴스(일반)"]
+            for i in zip(self.title_list, self.url_list, self.created_list):
+                final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+            #초기화
+            self.title_list = []
+            self.created_list = []
+            self.url_list = []
+            return " ".join(final_result)
+        # 규제/정책 뉴스 최근 10개
+        elif index == 2:
+            url = self.news_url + "?category=policy"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["data"]["featured_list"]
+            count = 1
+            for i in data:
+                self.title_list.append("{}. 제목 : ".format(count) + i["title"])
+                self.created_list.append("업로드 시간 : " + i["created_at"][:19])
+                self.url_list.append("url : " + i["url"])
+                count += 1
+            
+            final_result = ["[업비트] 디지털 자산뉴스(규제/정책)"]
+            for i in zip(self.title_list, self.url_list, self.created_list):
+                final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+            #초기화
+            self.title_list = []
+            self.created_list = []
+            self.url_list = []
+            return " ".join(final_result)
+        # 산업/테크 뉴스 최근 10개
+        elif index == 3:
+            url = self.news_url + "?category=tech"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["data"]["featured_list"]
+            count = 1
+            for i in data:
+                self.title_list.append("{}. 제목 : ".format(count) + i["title"])
+                self.created_list.append("업로드 시간 : " + i["created_at"][:19])
+                self.url_list.append("url : " + i["url"])
+                count+= 1
+            final_result = ["[업비트] 디지털 자산뉴스(산업/테크)"]
+            for i in zip(self.title_list, self.url_list, self.created_list):
+                 final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+            #초기화
+            self.title_list = []
+            self.created_list = []
+            self.url_list = []
+            return " ".join(final_result)
+        # 칼럼/인터뷰 뉴스 최근 10개
+        elif index == 4:
+            url = self.news_url + "?category=column"
+            result = req.urlopen(url)
+            js_obj = json.load(result)
+            data = js_obj["data"]["featured_list"]
+            count = 1
+            for i in data:
+                self.title_list.append("{}. 제목 : ".format(count) + i["title"])
+                self.created_list.append("업로드 시간 : " + i["created_at"][:19])
+                self.url_list.append("url : " + i["url"])
+                count+= 1
+            final_result = ["[업비트] 디지털 자산뉴스(산업/테크)"]
+            for i in zip(self.title_list, self.url_list, self.created_list):
+                 final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+            #초기화
+            self.title_list = []
+            self.created_list = []
+            self.url_list = []
+            return " ".join(final_result)             
 
 class Bithumb:          
     def get_krw_coin_price(coin_name):
@@ -551,3 +617,6 @@ def real_time(index):
 
 a = Upbit_News()
 print(a.get_news(1))
+print(a.get_news(2))
+print(a.get_news(3))
+print(a.get_news(4))
