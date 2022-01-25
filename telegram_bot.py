@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-my_token = "5118411582:AAFKcryheD3jhUoNjsQSC_gLRUpk-x15wso"
+my_token = "텔레그램 토큰"
 ############################ 봇 기초 함수 #########################################
 def start(update, context):
     text = f"=====================================\n"
