@@ -12,11 +12,6 @@ import json
 import time
 import datetime
 import urllib.request as req
-from apscheduler.schedulers.blocking import BlockingScheduler
-
-
-old_titles = []
-old_contents = []
 
 # 환율 (네이버 증권)
 class Rate_Krw:
@@ -116,15 +111,15 @@ class Upbit:
             gimp = "바이낸스에 없습니다."
         ############################ 김프계산 #########################################
         try:
-            co_list.append("검색하신 "+ coin_name+ " 코인의 결과입니다. (" + str(real_time(0)) + "시 " + str(real_time(1)) + "분 " + str(real_time(2)) + "초)")
-            co_list.append("\n코인명 : " + json_obj[0]['market'])
-            co_list.append("\n현재가격 : " + str(json_obj[0]['trade_price']) + " (" + str(round(json_obj[0]['signed_change_rate']*100, 2)) + "%)")
-            co_list.append("\n당일시가 : " + str(json_obj[0]['opening_price']))
-            co_list.append("\n당일고가 : " + str(json_obj[0]['high_price']))
-            co_list.append("\n당일저가 : " + str(json_obj[0]['low_price']))
-            co_list.append("\n24시간 거래량 : " + str(round(json_obj[0]['acc_trade_volume_24h'], 3)) + str(json_obj[0]['market'][4:]))
-            co_list.append("\n24시간 거래대금 : " + str(round(json_obj[0]['acc_trade_price_24h'])) + "KRW")
-            co_list.append("\n김치프리미엄 : " + str(gimp) + "(%)")
+            co_list.append("[검색하신 "+ coin_name+ " 코인의 결과입니다] (" + str(real_time(0)) + "시 " + str(real_time(1)) + "분 " + str(real_time(2)) + "초)")
+            co_list.append("\n1️⃣코인명 : " + json_obj[0]['market'])
+            co_list.append("\n2️⃣현재가격 : " + str(json_obj[0]['trade_price']) + " (" + str(round(json_obj[0]['signed_change_rate']*100, 2)) + "%)")
+            co_list.append("\n3️⃣당일시가 : " + str(json_obj[0]['opening_price']))
+            co_list.append("\n4️⃣당일고가 : " + str(json_obj[0]['high_price']))
+            co_list.append("\n5️⃣당일저가 : " + str(json_obj[0]['low_price']))
+            co_list.append("\n6️⃣24시간 거래량 : " + str(round(json_obj[0]['acc_trade_volume_24h'], 3)) + str(json_obj[0]['market'][4:]))
+            co_list.append("\n7️⃣24시간 거래대금 : " + str(round(json_obj[0]['acc_trade_price_24h'])) + "KRW")
+            co_list.append("\n💲김치프리미엄 : " + str(gimp) + "(%)")
             return " ".join(co_list)
         except IndexError:
             return "없는 코인입니다."
@@ -140,14 +135,14 @@ class Upbit:
                 break
         co_list = []
         try:    
-            co_list.append("검색하신 "+ coin_name+ " 코인의 결과입니다. (" + str(real_time(0)) + "시 " + str(real_time(1)) + "분 " + str(real_time(2)) + "초)")
-            co_list.append("\n코인명 : " + json_obj[0]['market'])
-            co_list.append("\n현재가격 : " + str(format(json_obj[0]['trade_price'], ".8f")) + "(" + str(round(json_obj[0]['signed_change_rate']*100, 2))+ "%)")
-            co_list.append("\n당일시가 : " + str(format(json_obj[0]['opening_price'], ".8f")))
-            co_list.append("\n당일고가 : " + str(format(json_obj[0]['high_price'], ".8f")))
-            co_list.append("\n당일저가 : " + str(format(json_obj[0]['low_price'], ".8f")))
-            co_list.append("\n24시간 거래량 : " + str(round(json_obj[0]['acc_trade_volume_24h'], 3)) + json_obj[0]['market'][4:])
-            co_list.append("\n24시간 거래대금 : " + str(round(json_obj[0]['acc_trade_price_24h'])) + "BTC")
+            co_list.append("[검색하신 "+ coin_name+ " 코인의 결과입니다] (" + str(real_time(0)) + "시 " + str(real_time(1)) + "분 " + str(real_time(2)) + "초)")
+            co_list.append("\n1️⃣코인명 : " + json_obj[0]['market'])
+            co_list.append("\n2️⃣현재가격 : " + str(format(json_obj[0]['trade_price'], ".8f")) + "(" + str(round(json_obj[0]['signed_change_rate']*100, 2))+ "%)")
+            co_list.append("\n3️⃣당일시가 : " + str(format(json_obj[0]['opening_price'], ".8f")))
+            co_list.append("\n4️⃣당일고가 : " + str(format(json_obj[0]['high_price'], ".8f")))
+            co_list.append("\n5️⃣당일저가 : " + str(format(json_obj[0]['low_price'], ".8f")))
+            co_list.append("\n6️⃣24시간 거래량 : " + str(round(json_obj[0]['acc_trade_volume_24h'], 3)) + json_obj[0]['market'][4:])
+            co_list.append("\n7️⃣24시간 거래대금 : " + str(round(json_obj[0]['acc_trade_price_24h'])) + "BTC")
             return " ".join(co_list)
         except IndexError:
             return "없는 코인입니다."
@@ -163,15 +158,15 @@ class Upbit:
                 break
         co_list = []
         try:
-            co_list.append("검색하신 "+ coin_name+ " 코인의 결과입니다. (" + str(real_time(0)) + "시 " + str(real_time(1)) + "분 " + str(real_time(2)) + "초)")
-            co_list.append("\n코인명 : " + json_obj[0]['market'])
-            co_list.append("\n현재가격 : " + str(json_obj[0]['trade_price']) + "(" + str(round(json_obj[0]['signed_change_rate']*100, 2)) + "%)")
-            co_list.append("\n당일시가 : " + str(json_obj[0]['opening_price']))
-            co_list.append("\n당일시가 : " + str(json_obj[0]['opening_price']))
-            co_list.append("\n당일고가 : " + str(json_obj[0]['high_price']))
-            co_list.append("\n당일저가 : " + str(json_obj[0]['low_price']))
-            co_list.append("\n24시간 거래량 : " + str(round(json_obj[0]['acc_trade_volume_24h'], 3)) + json_obj[0]['market'][5:])
-            co_list.append("\n24시간 거래대금 : " + str(round(json_obj[0]['acc_trade_price_24h'])) + "USDT")
+            co_list.append("[검색하신 "+ coin_name+ " 코인의 결과입니다] (" + str(real_time(0)) + "시 " + str(real_time(1)) + "분 " + str(real_time(2)) + "초)")
+            co_list.append("\n1️⃣코인명 : " + json_obj[0]['market'])
+            co_list.append("\n2️⃣현재가격 : " + str(json_obj[0]['trade_price']) + "(" + str(round(json_obj[0]['signed_change_rate']*100, 2)) + "%)")
+            co_list.append("\n3️⃣당일시가 : " + str(json_obj[0]['opening_price']))
+            co_list.append("\n4️⃣당일시가 : " + str(json_obj[0]['opening_price']))
+            co_list.append("\n5️⃣당일고가 : " + str(json_obj[0]['high_price']))
+            co_list.append("\n6️⃣당일저가 : " + str(json_obj[0]['low_price']))
+            co_list.append("\n7️⃣24시간 거래량 : " + str(round(json_obj[0]['acc_trade_volume_24h'], 3)) + json_obj[0]['market'][5:])
+            co_list.append("\n8️⃣24시간 거래대금 : " + str(round(json_obj[0]['acc_trade_price_24h'])) + "USDT")
             return " ".join(co_list)
         except IndexError:
             return "없는 코인입니다."
@@ -383,7 +378,7 @@ class Upbit_News:
         self.created_list = []
         self.url_list = []
         self.news_url = "https://api-manager.upbit.com/api/v1/coin_news"
-    def get_news(self, index):
+    def get_news(self, index, num):
         # 일반 뉴스 최근 10개
         if index == 1:
             url = self.news_url + "?category=general"
@@ -396,10 +391,14 @@ class Upbit_News:
                 self.created_list.append("업로드 시간 : " + i["created_at"][:19])
                 self.url_list.append("url : " + i["url"])
                 count += 1
-            
+            num = count - num # 10 - 1 = 9
             final_result = ["[업비트] 디지털 자산뉴스(일반)"]
             for i in zip(self.title_list, self.url_list, self.created_list):
-                final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+                if num < count:
+                    final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+                else:
+                    break
+                num += 1
             #초기화
             self.title_list = []
             self.created_list = []
@@ -417,10 +416,14 @@ class Upbit_News:
                 self.created_list.append("업로드 시간 : " + i["created_at"][:19])
                 self.url_list.append("url : " + i["url"])
                 count += 1
-            
+            num = count - num
             final_result = ["[업비트] 디지털 자산뉴스(규제/정책)"]
             for i in zip(self.title_list, self.url_list, self.created_list):
-                final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+                if num < count:
+                    final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+                else:
+                    break
+                num += 1
             #초기화
             self.title_list = []
             self.created_list = []
@@ -438,9 +441,14 @@ class Upbit_News:
                 self.created_list.append("업로드 시간 : " + i["created_at"][:19])
                 self.url_list.append("url : " + i["url"])
                 count+= 1
+            num = count - num
             final_result = ["[업비트] 디지털 자산뉴스(산업/테크)"]
             for i in zip(self.title_list, self.url_list, self.created_list):
-                 final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+                if num < count:
+                    final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+                else:
+                    break
+                num += 1
             #초기화
             self.title_list = []
             self.created_list = []
@@ -458,9 +466,14 @@ class Upbit_News:
                 self.created_list.append("업로드 시간 : " + i["created_at"][:19])
                 self.url_list.append("url : " + i["url"])
                 count+= 1
+            num = count - num
             final_result = ["[업비트] 디지털 자산뉴스(칼럼)"]
             for i in zip(self.title_list, self.url_list, self.created_list):
-                 final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+                if num < count:
+                    final_result.append("\n" + i[0] + "\n" + i[1] + "\n" + i[2] + "\n")
+                else:
+                    break
+                num += 1
             #초기화
             self.title_list = []
             self.created_list = []
@@ -595,43 +608,6 @@ class Coinone:
         except IndexError:
             return "없는 코인입니다."
 
-class Coinness:
-    def crawl(index, old_contents=[]):
-        url = "https://api.coinness.live/v1/news"
-        result = req.urlopen(url)
-        json_obj = json.load(result)
-        titles = []
-        contents = []
-        for i in range(0, len(json_obj)):
-            titles.append(json_obj[i]["title"])
-            contents.append(json_obj[i]["content"])
-        new_contents = []
-        new_titles = []
-        for title in titles:
-            if title not in old_contents:
-                new_titles.append(title)
-
-        list = new_titles
-
-        return list[index]
-        
-    def send_contents():
-        global old_contents
-        global old_titles
-        new_titles = Coinness.crawl(0, old_titles)
-        new_contents = Coinness.crawl(1, old_contents)
-        new_result = []
-        if new_titles:
-            for title in new_titles:
-                new_result.append(title)
-            print(new_result, end="")
-            return "".join(new_result)
-        else:
-            pass
-        
-        old_titles += new_titles.copy()
-        old_titles = list(set(old_titles))
-
 def real_time(index):
     now = time.localtime()
     now_list = [now.tm_hour, now.tm_min, now.tm_sec]
@@ -648,10 +624,3 @@ def binance_price(coin_name):
         return result
     except:
         return result
- 
-
-# a = Coinness.send_contents()
-
-# sched = BlockingScheduler()
-# sched.start()
-# sched.add_job(a, 'interval', minutes=1)
