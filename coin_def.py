@@ -1,13 +1,10 @@
 # from ast import Index
 from email.headerregistry import HeaderRegistry
-import re
-import sched
 from typing import final
 # from numpy.lib.shape_base import column_stack
 import ccxt
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 import json
 import time
 import datetime
@@ -220,36 +217,37 @@ class Upbit_Trand:
         self.change_price_list = []
         self.change_rate_list = []
         self.trand_url = "https://crix-api-cdn.upbit.com/v1/crix/trends/daily_volume_power?quoteCurrencyCode="
-    def trand_list(self, index):
-        # 입출금 현황
-        if index == 1:
-            url = "https://ccx.upbit.com/api/v1/status/wallet"
-            result = req.urlopen(url)
-            js_obj = json.load(result)
+    def upbit_deposit(self, name):
+        url = "https://ccx.upbit.com/api/v1/status/wallet"
+        result = req.urlopen(url)
+        js_obj = json.load(result)
             
-            for i in js_obj:
-                self.coin_name.append("[코인명] : " + i["currency"])
+        for i in js_obj:
+            if name == i["currency"]:
+                self.coin_name.append("◽[코인명] : " + i["currency"] + "\n")
                 if i["wallet_state"] == "working":
-                    self.wallet_state.append(" [입출금현황] : 입출금 가능 ")
+                    self.wallet_state.append("◽[입출금현황] : 입출금 가능 \n")
                 elif i["wallet_state"] == "withdraw_only":
-                    self.wallet_state.append(" [입출금현황] : 출금만 가능 ")
+                    self.wallet_state.append("◽[입출금현황] : 출금만 가능 \n")
                 elif i["wallet_state"] == "paused":
-                    self.wallet_state.append(" [입출금현황] : 일시중단 ")
+                    self.wallet_state.append("◽[입출금현황] : 일시중단 \n")
                 elif i["wallet_state"] == "unsupported":
-                    self.wallet_state.append(" [입출금현황] : 준비중 ")
+                    self.wallet_state.append("◽[입출금현황] : 준비중 \n")
                 else:
-                    self.wallet_state.append(" [입출금현황] : 중단 ")
-                self.block_state.append(" [블록상태] : " + i["block_state"])
-                self.block_height.append(" [블록높이] : " + str(i["block_height"]))
-                self.message.append(" [비고] : " + str(i["message"]))
+                    self.wallet_state.append("◽[입출금현황] : 중단 \n")
+                self.block_state.append("◽[블록상태] : " + i["block_state"]+ "\n")
+                self.block_height.append("◽[블록높이] : " + str(i["block_height"]) + "\n")
+                self.message.append("◽[비고] : " + str(i["message"]))
+            else:
+                pass
             # print(self.trand_url.format("bid"))
-            final_result = []
-            for i in zip(self.coin_name, self.wallet_state, self.block_state, self.block_height, self.message):
-                final_result.append(i[0] + i[1] + i[2] + i[3] + i[4] + "\n")
-            return " ".join(final_result)
-
+        final_result = []
+        for i in zip(self.coin_name, self.wallet_state, self.block_state, self.block_height, self.message):
+            final_result.append(i[0] + i[1] + i[2] + i[3] + i[4])
+        return " ".join(final_result)
+    def trand_list(self, index):
         #일 매수 체결순위(KRW마켓) 
-        elif index == 2:
+        if index == 1:
             url = self.trand_url + "KRW&orderBy=bid&count=5"
             result = req.urlopen(url)
             js_obj = json.load(result)
@@ -275,7 +273,7 @@ class Upbit_Trand:
             return " ".join(final_result)
 
         #일 매도 체결순위(KRW마켓)
-        elif index == 3:
+        elif index == 2:
             url = self.trand_url + "KRW&orderBy=ask&count=5"
             result = req.urlopen(url)
             js_obj = json.load(result)
@@ -300,7 +298,7 @@ class Upbit_Trand:
             return " ".join(final_result)
             
         #일 매수 체결순위(BTC 마켓)
-        elif index == 4:
+        elif index == 3:
             url = self.trand_url + "BTC&orderBy=bid&count=5"
             result = req.urlopen(url)
             js_obj = json.load(result)
@@ -325,9 +323,9 @@ class Upbit_Trand:
             self.change_price_list = []
             self.change_rate_list = []
             return " ".join(final_result)
-
+        
         #일 매도 체결순위(BTC 마켓)
-        elif index == 5:
+        elif index == 4:
             url = self.trand_url + "BTC&orderBy=ask&count=5"
             result = req.urlopen(url)
             js_obj = json.load(result)
@@ -353,7 +351,7 @@ class Upbit_Trand:
             self.change_rate_list = []
             return " ".join(final_result)
         #주간 상승률 Top 10
-        elif index == 6:
+        elif index == 5:
             url = "https://crix-api-cdn.upbit.com/v1/crix/trends/weekly_change_rate?count=10"
             result = req.urlopen(url)
             js_obj = json.load(result)
@@ -515,19 +513,18 @@ class Bithumb:
                 gimp = "바이낸스에 없습니다."
             ################################################# 김프 #################################################
             co_list = []
-            co_list.append("검색하신 " + coin_name + " 코인의 결과입니다. (" + str(real_time(0)) + "시 " + str(real_time(1)) +"분 " + str(real_time(2))+ "초)")
-            co_list.append("\n현재가격 : " + now_price + " ("+data["fluctate_rate_24H"]+"%)")
-            co_list.append("\n전일종가 : " + data["prev_closing_price"])
-            co_list.append("\n당일시가 : " + data["opening_price"])
-            co_list.append("\n당일고가 : " + data["max_price"])
-            co_list.append("\n당일저가 : " + data["min_price"])
-            co_list.append("\n24시간 거래량 : " + str(format(float(data["units_traded_24H"]), ".3f")) + c_code)
-            co_list.append("\n24시간 거래금액 : " + data["acc_trade_value_24H"] + "KRW")
-            co_list.append("\n김치프리미엄 : " + str(gimp) + "(%)")
+            co_list.append("[검색하신 " + coin_name + " 코인의 결과입니다] (" + str(real_time(0)) + "시 " + str(real_time(1)) +"분 " + str(real_time(2))+ "초)")
+            co_list.append("\n1️⃣현재가격 : " + now_price + " ("+data["fluctate_rate_24H"]+"%)")
+            co_list.append("\n2️⃣전일종가 : " + data["prev_closing_price"])
+            co_list.append("\n3️⃣당일시가 : " + data["opening_price"])
+            co_list.append("\n4️⃣당일고가 : " + data["max_price"])
+            co_list.append("\n5️⃣당일저가 : " + data["min_price"])
+            co_list.append("\n6️⃣24시간 거래량 : " + str(format(float(data["units_traded_24H"]), ".3f")) + c_code)
+            co_list.append("\n7️⃣24시간 거래금액 : " + data["acc_trade_value_24H"] + "KRW")
+            co_list.append("\n8️⃣김치프리미엄 : " + str(gimp) + "(%)")
             return " ".join(co_list)
         except IndexError:
             return "없는 코인입니다."
-        
 
     def get_btc_coin_price(coin_name):
         with open('bithumb_btc.json', 'r', encoding="utf8") as f:
@@ -557,14 +554,14 @@ class Bithumb:
             c_code = result2["data"]['order_currency'] #코인코드
 
             co_list = []
-            co_list.append("검색하신 " + coin_name + " 코인의 결과입니다. (" + str(real_time(0)) + "시 " + str(real_time(1)) +"분 " + str(real_time(2))+ "초)")
-            co_list.append("\n현재가격 : " + now_price + " ("+data["fluctate_rate_24H"]+"%)")
-            co_list.append("\n전일종가 : " + data["prev_closing_price"])
-            co_list.append("\n당일시가 : " + data["opening_price"])
-            co_list.append("\n당일고가 : " + data["max_price"])
-            co_list.append("\n당일저가 : " + data["min_price"])
-            co_list.append("\n24시간 거래량 : " + str(format(float(data["units_traded_24H"]), ".3f")) + c_code)
-            co_list.append("\n24시간 거래금액 : " + data["acc_trade_value_24H"] + "KRW")
+            co_list.append("[검색하신 " + coin_name + " 코인의 결과입니다] (" + str(real_time(0)) + "시 " + str(real_time(1)) +"분 " + str(real_time(2))+ "초)")
+            co_list.append("\n1️⃣현재가격 : " + now_price + " ("+data["fluctate_rate_24H"]+"%)")
+            co_list.append("\n2️⃣전일종가 : " + data["prev_closing_price"])
+            co_list.append("\n3️⃣당일시가 : " + data["opening_price"])
+            co_list.append("\n4️⃣당일고가 : " + data["max_price"])
+            co_list.append("\n5️⃣당일저가 : " + data["min_price"])
+            co_list.append("\n6️⃣24시간 거래량 : " + str(format(float(data["units_traded_24H"]), ".3f")) + c_code)
+            co_list.append("\n7️⃣24시간 거래금액 : " + data["acc_trade_value_24H"] + "KRW")
             return " ".join(co_list)
         except IndexError:
             return "없는 코인입니다."
@@ -593,17 +590,17 @@ class Coinone:
                 gimp = "바이낸스에 없습니다."
             ################################################# 김프 #################################################
             co_list = []
-            co_list.append("검색하신 " + coin_name + " 코인의 결과입니다. (" + str(real_time(0)) + "시 " + str(real_time(1)) +"분 " + str(real_time(2))+ "초)")
-            co_list.append("\n현재가격 : " + result["last"])
-            co_list.append("\n당일고가 : " + result["high"])
-            co_list.append("\n당일저가 : " + result["low"])
-            co_list.append("\n24시간 거래량 : " + result["volume"] + search_code)
-            co_list.append("\n24H~48H 중 최고가 : " + result["yesterday_high"])
-            co_list.append("\n24H~48H 중 최저가 : " + result["yesterday_low"])
-            co_list.append("\n24H~48H 동안 최초가격 : " + result["yesterday_first"])
-            co_list.append("\n24H 이전 요청 시 가격 : " + result["yesterday_last"])
-            co_list.append("\n24H~48H 동안 완료된 주문의 코인수량 : " + result["yesterday_volume"] + search_code)
-            co_list.append("\n김치프리미엄 : " + str(gimp) + "(%)")
+            co_list.append("[검색하신 " + coin_name + " 코인의 결과입니다] (" + str(real_time(0)) + "시 " + str(real_time(1)) +"분 " + str(real_time(2))+ "초)")
+            co_list.append("\n1️⃣현재가격 : " + result["last"])
+            co_list.append("\n2️⃣당일고가 : " + result["high"])
+            co_list.append("\n3️⃣당일저가 : " + result["low"])
+            co_list.append("\n4️⃣24시간 거래량 : " + result["volume"] + search_code)
+            co_list.append("\n5️⃣24H~48H 중 최고가 : " + result["yesterday_high"])
+            co_list.append("\n6️⃣24H~48H 중 최저가 : " + result["yesterday_low"])
+            co_list.append("\n7️⃣24H~48H 동안 최초가격 : " + result["yesterday_first"])
+            co_list.append("\n8️⃣24H 이전 요청 시 가격 : " + result["yesterday_last"])
+            co_list.append("\n9️⃣24H~48H 동안 완료된 주문의 코인수량 : " + result["yesterday_volume"] + search_code)
+            co_list.append("\n🔟김치프리미엄 : " + str(gimp) + "(%)")
             return " ".join(co_list)
         except IndexError:
             return "없는 코인입니다."

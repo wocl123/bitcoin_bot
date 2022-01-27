@@ -1,11 +1,9 @@
-import secrets
 from setuptools import Command
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import coin_def
 from apscheduler.schedulers.blocking import BlockingScheduler
-import urllib.request as req
-import logging, time
+import logging
 
 logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,10 +13,9 @@ old_titles = []
 old_contents = []
 my_token = "토큰"
 bot = telegram.Bot(token = my_token)
-chat_id = "아이디"
 ############################ 봇 기초 함수 #########################################
 def start(update, context):
-    text = f"==================================\n"
+    text = f"===============================\n"
     text += f"🎈  비트코인 챗봇에 오신것을 환영합니다  🎈\n"
     text += f"해당 챗봇은 사용자의 명령어에 따라 정보를 제공합니다.\n"
     text += f"자세한 설명은 /help 를 입력해주세요."
@@ -80,31 +77,46 @@ def upbit_usdt(update, context):
         context.bot.send_message(chat_id = update.effective_chat.id, text="[ERROR!] 코인명을 입력해주세요!")
 ############################ 비트코인 명령어 함수(업비트 코인동향) #########################################
 def upbit_trends(update, context):
-    text = f"업비트 입출금현황, 주간상승률, 일 매수/매도 체결순위를 제공합니다.\n"
-    text += f"[명령어]\n"
+    text = f"🗨[업비트 코인동향] 설명서입니다.\n"
+    text += f"업비트 입출금현황, 주간상승률, 일 매수/매도 체결순위를 제공합니다.\n"
+    text += f"‼[명령어 사용법]‼\n"
     text += f"1️⃣ 입출금현황 : /deposit\n"
     text += f"2️⃣ 주간 상승률 : /weekly_up\n"
     text += f"3️⃣ 일 매수 체결순위(krw/btc) /days_buy\n"
     text += f"4️⃣ 일 매도 체결순위(krw/btc) /days_sell\n"
-    text += f"현재 입출금 현황은 수정중에 있습니다."
     context.bot.send_message(chat_id = update.effective_chat.id, text=text)
 
 def weekly_up(update, context):
     week = coin_def.Upbit_Trand()
-    week = week.trand_list(6)
+    week = week.trand_list(5)
     context.bot.send_message(chat_id = update.effective_chat.id, text=week)
 
 def days_buy(update, context):
     day = coin_def.Upbit_Trand()
-    days = day.trand_list(2)
-    days += day.trand_list(4)
+    days = day.trand_list(1)
+    days += day.trand_list(3)
     context.bot.send_message(chat_id = update.effective_chat.id, text=days)
 
 def days_sell(update, context):
     day = coin_def.Upbit_Trand()
-    days = day.trand_list(3)
-    days += day.trand_list(5)
+    days = day.trand_list(2)
+    days += day.trand_list(4)
     context.bot.send_message(chat_id = update.effective_chat.id, text=days)
+############################ 비트코인 명령어 함수(업비트 입출금현황) #########################################
+def deposit(update, context):
+    user_text = update.message.text
+    coin = user_text[8:].strip().upper()
+    if coin:
+        a = coin_def.Upbit_Trand()
+        context.bot.send_message(chat_id = update.effective_chat.id, text=a.upbit_deposit(coin))
+    else:
+        text = f"[입출금 현황] 메뉴입니다.\n"
+        text += f"업비트에서 제공하는 입출금 현황을 검색하실 수 있습니다.\n"
+        text += f"❓블록상태 정보❓\n"
+        text += f"⭕normal : 정상\n⭕delayed : 지연\n⭕inactive : 비활성\n⭕??? : 대기중\n"
+        text += f"‼[명령어 사용법]‼\n"
+        text += f"사용자 입력 : /deposit 코인심볼\n ex) /deposit btc\n"
+        context.bot.send_message(chat_id = update.effective_chat.id, text = text)
 ############################ 비트코인 명령어 함수(업비트 코인동향뉴스) #########################################
 def upbit_news(update, context):
     text = f"🗨[업비트 자산뉴스] 설명서입니다.\n"
@@ -288,6 +300,7 @@ def main():
     dp.add_handler(CommandHandler('exrate_jpy', exrate_jpy))
     dp.add_handler(CommandHandler('exrate_eur', exrate_eur))
     dp.add_handler(CommandHandler('exrate_cny', exrate_cny))
+    dp.add_handler(CommandHandler('deposit', deposit))
     dp.add_handler(MessageHandler(Filters.command, unknown))
     dp.add_error_handler(error)
     updater.idle()
