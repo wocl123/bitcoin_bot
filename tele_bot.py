@@ -28,7 +28,7 @@ def help(update, context):
     text += f"4️⃣ 업비트 코인동향(매도/매수 체결순위) /upbit_trends\n"
     text += f"5️⃣ 업비트 디지털 자산뉴스 /upbit_news\n"
     text += f"6️⃣ 환율정보 /exrate\n"
-    text += f"7️⃣ 실시간 코인뉴스 받기 /news_on\n"
+    text += f"7️⃣ 실시간 코인뉴스 /news\n"
     text += f"그 외의 수정/건의사항은 wocl123@gmail.com으로 연락바랍니다."
     context.bot.send_message(chat_id = update.effective_chat.id, text=text)
 ############################ 비트코인 명령어 함수(업비트 가격) #########################################
