@@ -2,17 +2,16 @@ from setuptools import Command
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import coin_def
-from apscheduler.schedulers.blocking import BlockingScheduler
-import logging
+from apscheduler.schedulers.background import BackgroundScheduler
+import logging, time, json
+import urllib.request as req
 
 logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-sched = BlockingScheduler()
+############################ 기본 설정값 #########################################
 old_titles = []
 old_contents = []
-my_token = "토큰"
-bot = telegram.Bot(token = my_token)
+my_token = "본인토큰"
 ############################ 봇 기초 함수 #########################################
 def start(update, context):
     text = f"===============================\n"
@@ -29,6 +28,7 @@ def help(update, context):
     text += f"4️⃣ 업비트 코인동향(매도/매수 체결순위) /upbit_trends\n"
     text += f"5️⃣ 업비트 디지털 자산뉴스 /upbit_news\n"
     text += f"6️⃣ 환율정보 /exrate\n"
+    text += f"7️⃣ 실시간 코인뉴스 받기 /news_on\n"
     text += f"그 외의 수정/건의사항은 wocl123@gmail.com으로 연락바랍니다."
     context.bot.send_message(chat_id = update.effective_chat.id, text=text)
 ############################ 비트코인 명령어 함수(업비트 가격) #########################################
@@ -268,7 +268,56 @@ def error(update, context):
 
 def unknown(update, context):
     context.bot.send_message(chat_id = update.effective_chat.id, text="죄송하지만 그 명령어를 이해할 수 없습니다.")
+############################ 실시간 코인뉴스 함수 #########################################
+def extract_titles(old_titles=[]):
+    url = "https://api.coinness.live/v1/news"
+    result = req.urlopen(url)
+    json_obj = json.load(result)
 
+    titles = []
+    for i in range(0, 1):
+        titles.append(json_obj[i]["title"])
+    new_titles = []
+    time.sleep(3)
+    for title in titles:
+        if title not in old_titles:
+            new_titles.append(title)
+    print(new_titles)
+    return new_titles
+
+def extract_contents(old_contents=[]):
+    url = "https://api.coinness.live/v1/news"
+    result = req.urlopen(url)
+    json_obj = json.load(result)
+
+    contents = []
+    for i in range(0, 1):
+        contents.append(json_obj[i]["content"])
+    new_contents = []
+    time.sleep(3)
+    for content in contents:
+        if content not in old_contents:
+            new_contents.append(content)
+    print(new_contents)
+    return new_contents
+
+def send_titles():
+    global old_titles
+    global old_contents
+    new_titles = extract_titles(old_titles)
+    new_contents = extract_contents(old_contents)
+    final_result = []
+    
+    if new_titles:
+        for title, content in zip(new_titles, new_contents):
+            final_result = "🔅[제목]\n{0}\n🔆[내용]\n{1}".format(title, content)
+            print(final_result)
+            bot.sendMessage(chat_id = chat_id, text=final_result)
+    old_titles += new_titles.copy()
+    old_contents += new_contents.copy()
+    old_titles = list(set(old_titles))
+    old_contents = list(set(old_contents))
+############################ 메인 #########################################
 def main():
     updater = Updater(my_token)
     dp = updater.dispatcher
@@ -301,12 +350,40 @@ def main():
     dp.add_handler(CommandHandler('exrate_eur', exrate_eur))
     dp.add_handler(CommandHandler('exrate_cny', exrate_cny))
     dp.add_handler(CommandHandler('deposit', deposit))
+    dp.add_handler(CommandHandler('news', news))
+    dp.add_handler(CommandHandler('news_on', news_on))
+    dp.add_handler(CommandHandler('news_off', news_off))
     dp.add_handler(MessageHandler(Filters.command, unknown))
+    
     dp.add_error_handler(error)
     updater.idle()
     updater.stop()
     
+def news(update, context):
+    user_text = update.message.text
+    text = f"🗨[실시간 코인뉴스] 설명서입니다.\n"
+    text += f"▫새로운 뉴스가 업로드 될 때마다 메세지를 보내줍니다.\n"
+    text += f"▫60초 간격으로 정보를 받아오기 때문에 약간의 시간차이가 발생할 수 있습니다.\n"
+    text += f"▫해당 자료는 코인니스에서 받아오고 있습니다.\n"
+    text += f"‼[명령어 설명서]\n"
+    text += f"1️⃣/news_on : 실시간 뉴스 on\n"
+    text += f"2️⃣/news_off : 실시간 뉴스 off\n"
+    context.bot.send_message(chat_id = update.effective_chat.id, text=text)
+def news_on(update,context):
+    global scheduler 
+    scheduler = BackgroundScheduler(daemon=True)
+    text_2 = f"[실시간 코인뉴스 봇 작동]\n"
+    context.bot.send_message(chat_id = update.effective_chat.id, text=text_2)
+    scheduler.start()
+    scheduler.add_job(send_titles, 'interval', seconds=30, id='job1')    
+    
+def news_off(update, context):
+    text_3 = f"[실시간 코인뉴스 봇 종료]\n"
+    context.bot.send_message(chat_id = update.effective_chat.id, text=text_3)
+    scheduler.remove_job('job1')
 
 if __name__ == '__main__':
+    bot = telegram.Bot(token = my_token)
+    chat_id = bot.getUpdates()[-1].message.chat.id
     main()
     
